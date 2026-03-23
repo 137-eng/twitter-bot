@@ -9,18 +9,18 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-# 랜덤 실행 (약 1~2시간 간격 느낌)
-if random.random() < 0.5:
+# 랜덤 실행
+if random.random() < 0.66:
     print("이번 실행 스킵")
     sys.exit()
 
-# 트윗 문장 랜덤 선택
+# 트윗 랜덤 선택
 with open("tweet.txt", "r", encoding="utf-8") as f:
     tweets = f.readlines()
 
 tweet = random.choice(tweets).strip()
 
-# 크롬 옵션 (헤드리스)
+# 크롬 옵션
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
@@ -39,23 +39,31 @@ time.sleep(5)
 with open("cookies.pkl", "rb") as f:
     cookies = pickle.load(f)
 
+# 쿠키 추가 (문제되는 값 제거)
 for cookie in cookies:
-    driver.add_cookie(cookie)
+    cookie_dict = {
+        'name': cookie.get('name'),
+        'value': cookie.get('value'),
+        'domain': cookie.get('domain'),
+        'path': cookie.get('path', '/')
+    }
+    try:
+        driver.add_cookie(cookie_dict)
+    except:
+        pass
 
-# 로그인된 상태로 이동
+# 로그인 상태 페이지 이동
 driver.get("https://x.com/home")
 time.sleep(5)
 
-# 트윗 작성 페이지
+# 트윗 작성
 driver.get("https://x.com/compose/post")
 time.sleep(5)
 
-# 트윗 입력
 tweet_box = driver.find_element(By.XPATH, "//div[@role='textbox']")
 tweet_box.send_keys(tweet)
 time.sleep(2)
 
-# 트윗 버튼 클릭
 tweet_button = driver.find_element(By.XPATH, "//button[@data-testid='tweetButton']")
 tweet_button.click()
 
