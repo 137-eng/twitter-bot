@@ -13,7 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 USERNAME = os.environ['TWITTER_USERNAME']
 PASSWORD = os.environ['TWITTER_PASSWORD']
 
-# 랜덤 실행 (1~2시간 느낌)
+# 랜덤 실행 (약 1~2시간 간격 느낌)
 if random.random() < 0.5:
     print("이번 실행 스킵")
     sys.exit()
@@ -22,7 +22,7 @@ if random.random() < 0.5:
 with open("tweet.txt", "r", encoding="utf-8") as f:
     tweets = f.readlines()
 
-tweet = random.choice(tweets)
+tweet = random.choice(tweets).strip()
 
 # 크롬 옵션 (헤드리스)
 chrome_options = Options()
@@ -35,27 +35,36 @@ driver = webdriver.Chrome(
     options=chrome_options
 )
 
-# 트위터 로그인
-driver.get("https://twitter.com/login")
-time.sleep(5)
+# 트위터 로그인 페이지
+driver.get("https://twitter.com/i/flow/login")
+time.sleep(7)
 
-username_input = driver.find_element(By.NAME, "text")
+# 아이디 입력
+username_input = driver.find_element(By.XPATH, "//input[@autocomplete='username']")
 username_input.send_keys(USERNAME)
 username_input.send_keys(Keys.ENTER)
-time.sleep(3)
-
-password_input = driver.find_element(By.NAME, "password")
-password_input.send_keys(PASSWORD)
-password_input.send_keys(Keys.ENTER)
 time.sleep(5)
 
-# 트윗 작성
-tweet_box = driver.find_element(By.CSS_SELECTOR, "div[aria-label='Tweet text']")
-tweet_box.send_keys(tweet)
-time.sleep(2)
+# 비밀번호 입력
+password_input = driver.find_element(By.XPATH, "//input[@name='password']")
+password_input.send_keys(PASSWORD)
+password_input.send_keys(Keys.ENTER)
+time.sleep(7)
 
-tweet_button = driver.find_element(By.XPATH, "//span[text()='Tweet']")
+# 트윗 작성 페이지 이동
+driver.get("https://twitter.com/compose/tweet")
+time.sleep(7)
+
+# 트윗 입력
+tweet_box = driver.find_element(By.XPATH, "//div[@aria-label='Tweet text']")
+tweet_box.send_keys(tweet)
+time.sleep(3)
+
+# 트윗 버튼 클릭
+tweet_button = driver.find_element(By.XPATH, "//div[@data-testid='tweetButton']")
 tweet_button.click()
 
 time.sleep(5)
 driver.quit()
+
+print("트윗 완료:", tweet)
