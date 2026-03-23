@@ -2,29 +2,26 @@ import random
 import os
 import sys
 import time
+import pickle
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-USERNAME = os.environ['TWITTER_USERNAME']
-PASSWORD = os.environ['TWITTER_PASSWORD']
-
-# 랜덤 실행 (약 1~2시간 간격 느낌)
+# 랜덤 실행
 if random.random() < 0.5:
     print("이번 실행 스킵")
     sys.exit()
 
-# 트윗 문장 랜덤 선택
+# 트윗 랜덤 선택
 with open("tweet.txt", "r", encoding="utf-8") as f:
     tweets = f.readlines()
 
 tweet = random.choice(tweets).strip()
 
-# 크롬 옵션 (헤드리스)
+# 크롬 옵션
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 chrome_options.add_argument("--no-sandbox")
@@ -35,33 +32,30 @@ driver = webdriver.Chrome(
     options=chrome_options
 )
 
-# 트위터 로그인 페이지
-driver.get("https://twitter.com/i/flow/login")
-time.sleep(7)
-
-# 아이디 입력
-username_input = driver.find_element(By.XPATH, "//input[@autocomplete='username']")
-username_input.send_keys(USERNAME)
-username_input.send_keys(Keys.ENTER)
+# x.com 접속
+driver.get("https://x.com")
 time.sleep(5)
 
-# 비밀번호 입력
-password_input = driver.find_element(By.XPATH, "//input[@name='password']")
-password_input.send_keys(PASSWORD)
-password_input.send_keys(Keys.ENTER)
-time.sleep(7)
+# 쿠키 로드
+with open("cookies.txt", "rb") as f:
+    cookies = pickle.load(f)
 
-# 트윗 작성 페이지 이동
-driver.get("https://twitter.com/compose/tweet")
-time.sleep(7)
+for cookie in cookies:
+    driver.add_cookie(cookie)
 
-# 트윗 입력
-tweet_box = driver.find_element(By.XPATH, "//div[@aria-label='Tweet text']")
+# 로그인된 상태로 다시 접속
+driver.get("https://x.com/home")
+time.sleep(5)
+
+# 트윗 작성
+driver.get("https://x.com/compose/post")
+time.sleep(5)
+
+tweet_box = driver.find_element(By.XPATH, "//div[@role='textbox']")
 tweet_box.send_keys(tweet)
-time.sleep(3)
+time.sleep(2)
 
-# 트윗 버튼 클릭
-tweet_button = driver.find_element(By.XPATH, "//div[@data-testid='tweetButton']")
+tweet_button = driver.find_element(By.XPATH, "//button[@data-testid='tweetButton']")
 tweet_button.click()
 
 time.sleep(5)
