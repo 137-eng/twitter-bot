@@ -23,4 +23,7 @@ jobs:
           pip install selenium
 
       - name: Run bot
+        env:
+          TWITTER_USERNAME: ${{ secrets.TWITTER_USERNAME }}
+          TWITTER_PASSWORD: ${{ secrets.TWITTER_PASSWORD }}
         run: python bot.py
