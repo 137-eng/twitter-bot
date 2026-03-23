@@ -39,20 +39,23 @@ time.sleep(5)
 with open("cookies.pkl", "rb") as f:
     cookies = pickle.load(f)
 
-# 쿠키 추가 (문제되는 값 제거)
-for cookie in cookies:
-    cookie_dict = {
-        'name': cookie.get('name'),
-        'value': cookie.get('value'),
-        'domain': cookie.get('domain'),
-        'path': cookie.get('path', '/')
-    }
-    try:
-        driver.add_cookie(cookie_dict)
-    except:
-        pass
+# 필요한 쿠키만 추가
+needed_cookies = ["auth_token", "ct0", "twid"]
 
-# 로그인 상태 페이지 이동
+for cookie in cookies:
+    if cookie['name'] in needed_cookies:
+        cookie_dict = {
+            'name': cookie['name'],
+            'value': cookie['value'],
+            'domain': '.x.com',
+            'path': '/'
+        }
+        try:
+            driver.add_cookie(cookie_dict)
+        except:
+            pass
+
+# 로그인 상태 페이지
 driver.get("https://x.com/home")
 time.sleep(5)
 
