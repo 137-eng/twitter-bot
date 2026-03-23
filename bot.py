@@ -14,7 +14,7 @@ USERNAME = os.environ['TWITTER_USERNAME']
 PASSWORD = os.environ['TWITTER_PASSWORD']
 
 # 랜덤 실행 (1~2시간 느낌)
-if random.random() < 0.66:
+if random.random() < 0.5:
     print("이번 실행 스킵")
     sys.exit()
 
