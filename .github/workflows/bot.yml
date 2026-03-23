@@ -2,7 +2,7 @@ name: Twitter Bot
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 jobs:
@@ -18,9 +18,14 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install Chrome
+        run: |
+          sudo apt update
+          sudo apt install -y google-chrome-stable
+
       - name: Install packages
         run: |
-          pip install selenium
+          pip install selenium webdriver-manager
 
       - name: Run bot
         env:
